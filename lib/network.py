@@ -49,7 +49,7 @@ class PoseNetFeat(nn.Module):
         self.conv1 = torch.nn.Conv1d(3, 64, 1)
         self.conv2 = torch.nn.Conv1d(64, 128, 1)
         self.conv3 = torch.nn.Conv1d(128, num_points, 1)
-
+        self.fc = torch.nn.Linear(num_points,num_points)
         self.conv5 = torch.nn.Conv1d(320, 512, 1)
         self.conv6 = torch.nn.Conv1d(512, 1024, 1)
 
@@ -67,8 +67,8 @@ class PoseNetFeat(nn.Module):
         pointfeat = x
         x = F.relu(self.conv2(x))
         x = F.relu(self.conv3(x))
-        x = torch.max(x, 2, keepdim=True)[0]
-        x = x.view(-1, 1, self.num_points).repeat(1, 128, 1)
+        x = torch.max(x, 2, keepdim=True)[0].view(-1,self.num_points)
+        x = F.relu(self.fc(x)).view(-1,1,self.num_points).repeat(1,128,1)
 
         fusion = torch.cat((pointfeat,x, emb), 1)  # 128 + 128 + 64
         x = F.relu(self.conv5(fusion))
@@ -171,7 +171,7 @@ class PoseRefineNetFeat(nn.Module):
         x = F.relu(self.conv1(x))
         pointfeat = x
         x = F.relu(self.conv2(x))
-        x = F.relu(self.conv3(x))
+        x = self.conv3(x)
         x = torch.max(x, 2, keepdim=True)[0]
         x = x.view(-1, 1, self.num_points).repeat(1, 128, 1)
 
