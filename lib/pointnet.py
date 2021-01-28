@@ -17,24 +17,18 @@ class STN3d(nn.Module):
         self.fc1 = nn.Linear(1024, 512)
         self.fc2 = nn.Linear(512, 256)
         self.fc3 = nn.Linear(256, 9)
-        self.relu = nn.ReLU()
-
+        
     def forward(self, x):
-        batchsize = x.size()[0]
+        bs = x.size()[0]
+        n_pts = x.size()[2]
         x = F.relu(self.conv1(x))
         x = F.relu(self.conv2(x))
         x = F.relu(self.conv3(x))
         x = torch.max(x, 2, keepdim=True)[0]
         x = x.view(-1, 1024)
-
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
-
-        iden = Variable(torch.from_numpy(np.array([1,0,0,0,1,0,0,0,1]).astype(np.float32))).view(1,9).repeat(batchsize,1)
-        if x.is_cuda:
-            iden = iden.cuda()
-        x = x + iden
         x = x.view(-1, 3, 3)
         return x
 

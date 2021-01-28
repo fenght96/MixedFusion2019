@@ -42,7 +42,7 @@ class ModifiedResnet(nn.Module):
 class PoseNetFeat(nn.Module):
     def __init__(self, num_points):
         super(PoseNetFeat, self).__init__()
-        self.stn = STN3d()
+        
         self.num_points = num_points
         self.e_conv1 = torch.nn.Conv1d(32, 64, 1)
         self.e_conv2 = torch.nn.Conv1d(64, 128, 1)
@@ -54,7 +54,9 @@ class PoseNetFeat(nn.Module):
         self.conv6 = torch.nn.Conv1d(512, 1024, 1)
 
         self.ap1 = torch.nn.AvgPool1d(num_points)
-
+        #for p in self.parameters():
+        #    p.requires_grad=False
+        self.stn = STN3d()
 
     def forward(self, x, emb):
         emb = F.relu(self.e_conv1(emb))
@@ -103,6 +105,7 @@ class PoseNet(nn.Module):
         self.conv4_t = torch.nn.Conv1d(128, num_obj * 3, 1)  # translation
         self.conv4_c = torch.nn.Conv1d(128, num_obj * 1, 1)  # confidence
 
+        
         self.num_obj = num_obj
 
     def forward(self, img, x, choose, obj):
@@ -149,18 +152,21 @@ class PoseRefineNetFeat(nn.Module):
     def __init__(self, num_points):
         super(PoseRefineNetFeat, self).__init__()
         self.num_points = num_points
-        self.stn = STN3d()
+        
         self.e_conv1 = torch.nn.Conv1d(32, 64, 1)
         self.e_conv2 = torch.nn.Conv1d(64, 128, 1)
         self.conv1 = torch.nn.Conv1d(3, 64, 1)
         self.conv2 = torch.nn.Conv1d(64, 128, 1)
         self.conv3 = torch.nn.Conv1d(128, num_points, 1)
 
+        self.fc = torch.nn.Linear(num_points,num_points)
+
         self.conv5 = torch.nn.Conv1d(320, 512, 1)
         self.conv6 = torch.nn.Conv1d(512, 1024, 1)
 
         self.ap1 = torch.nn.AvgPool1d(num_points)
-
+       
+        self.stn = STN3d()
     def forward(self, x, emb):
         emb = F.relu(self.e_conv1(emb))
         emb = F.relu(self.e_conv2(emb))  # 128
@@ -172,8 +178,11 @@ class PoseRefineNetFeat(nn.Module):
         pointfeat = x
         x = F.relu(self.conv2(x))
         x = self.conv3(x)
-        x = torch.max(x, 2, keepdim=True)[0]
-        x = x.view(-1, 1, self.num_points).repeat(1, 128, 1)
+        #x = torch.max(x, 2, keepdim=True)[0]
+        #x = x.view(-1, 1, self.num_points).repeat(1, 128, 1)
+
+        x = torch.max(x, 2, keepdim=True)[0].view(-1,self.num_points)
+        x = F.relu(self.fc(x)).view(-1,1,self.num_points).repeat(1,128,1)
 
         fusion = torch.cat((pointfeat,x, emb), 1)  # 128 + 128 + 64
         x = F.relu(self.conv5(fusion))
@@ -201,7 +210,7 @@ class PoseRefineNet(nn.Module):
         self.conv3_t = torch.nn.Linear(128, num_obj * 3)  # translation
 
         self.num_obj = num_obj
-
+        
     def forward(self, x, emb, obj):
         bs = x.size()[0]
 

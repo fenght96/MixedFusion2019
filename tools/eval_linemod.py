@@ -21,7 +21,7 @@ from lib.loss import Loss
 from lib.loss_refiner import Loss_refine
 from lib.transformations import euler_matrix, quaternion_matrix, quaternion_from_matrix
 from lib.knn.__init__ import KNearestNeighbor
-
+import time
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset_root', type=str, default = '', help='dataset root dir')
 parser.add_argument('--model', type=str, default = '',  help='resume PoseNet model')
@@ -65,10 +65,11 @@ success_count = [0 for i in range(num_objects)]
 num_count = [0 for i in range(num_objects)]
 fw = open('{0}/eval_result_logs.txt'.format(output_result_dir), 'w')
 
+time_s = time.time()
 for i, data in enumerate(testdataloader, 0):
     points, choose, img, target, model_points, idx = data
     if len(points.size()) == 2:
-        print('No.{0} NOT Pass! Lost detection!'.format(i))
+        #print('No.{0} NOT Pass! Lost detection!'.format(i))
         fw.write('No.{0} NOT Pass! Lost detection!\n'.format(i))
         continue
     points, choose, img, target, model_points, idx = Variable(points).cuda(), \
@@ -129,18 +130,23 @@ for i, data in enumerate(testdataloader, 0):
     else:
         dis = np.mean(np.linalg.norm(pred - target, axis=1))
 
+
+
+
     if dis < diameter[idx[0].item()]:
         success_count[idx[0].item()] += 1
-        print('No.{0} Pass! Distance: {1}'.format(i, dis))
+        #print('No.{0} Pass! Distance: {1}'.format(i, dis))
         fw.write('No.{0} Pass! Distance: {1}\n'.format(i, dis))
     else:
-        print('No.{0} NOT Pass! Distance: {1}'.format(i, dis))
+        #print('No.{0} NOT Pass! Distance: {1}'.format(i, dis))
         fw.write('No.{0} NOT Pass! Distance: {1}\n'.format(i, dis))
     num_count[idx[0].item()] += 1
+time_e = time.time() -time_s
 
 for i in range(num_objects):
-    print('Object {0} success rate: {1}'.format(objlist[i], float(success_count[i]) / num_count[i]))
+    #print('Object {0} success rate: {1}'.format(objlist[i], float(success_count[i]) / num_count[i]))
     fw.write('Object {0} success rate: {1}\n'.format(objlist[i], float(success_count[i]) / num_count[i]))
 print('ALL success rate: {0}'.format(float(sum(success_count)) / sum(num_count)))
 fw.write('ALL success rate: {0}\n'.format(float(sum(success_count)) / sum(num_count)))
 fw.close()
+print('ALL time : {0}  avg_time: {1}\n'.format(float(time_e),float(time_e) / sum(num_count)))

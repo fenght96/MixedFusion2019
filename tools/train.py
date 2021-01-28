@@ -33,16 +33,16 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', type=str, default = 'ycb', help='ycb or linemod')
 parser.add_argument('--dataset_root', type=str, default = '', help='dataset root dir (''YCB_Video_Dataset'' or ''Linemod_preprocessed'')')
 parser.add_argument('--batch_size', type=int, default = 8, help='batch size')
-parser.add_argument('--workers', type=int, default = 10, help='number of data loading workers')
+parser.add_argument('--workers', type=int, default = 16, help='number of data loading workers')
 parser.add_argument('--lr', default=0.0001, help='learning rate')
 parser.add_argument('--lr_rate', default=0.3, help='learning rate decay rate')
 parser.add_argument('--w', default=0.015, help='learning rate')
 parser.add_argument('--w_rate', default=0.3, help='learning rate decay rate')
 parser.add_argument('--decay_margin', default=0.016, help='margin to decay lr & w')
-parser.add_argument('--refine_margin', default=0.013, help='margin to start the training of iterative refinement')
+parser.add_argument('--refine_margin', type=float, default=0.013, help='margin to start the training of iterative refinement')
 parser.add_argument('--noise_trans', default=0.03, help='range of the random noise of translation added to the training data')
 parser.add_argument('--iteration', type=int, default = 2, help='number of refinement iterations')
-parser.add_argument('--nepoch', type=int, default=500, help='max number of epochs to train')
+parser.add_argument('--nepoch', type=int, default=600, help='max number of epochs to train')
 parser.add_argument('--resume_posenet', type=str, default = '',  help='resume PoseNet model')
 parser.add_argument('--resume_refinenet', type=str, default = '',  help='resume PoseRefineNet model')
 parser.add_argument('--start_epoch', type=int, default = 1, help='which epoch to start')
@@ -74,12 +74,24 @@ def main():
     estimator.cuda()
     refiner = PoseRefineNet(num_points = opt.num_points, num_obj = opt.num_objects)
     refiner.cuda()
-
+    #print(estimator)
+    #pdb.set_trace()
     if opt.resume_posenet != '':
-        estimator.load_state_dict(torch.load('{0}/{1}'.format(opt.outf, opt.resume_posenet)))
+        pretrained_dict = torch.load('{0}/{1}'.format(opt.outf, opt.resume_posenet))
+        model_dict = estimator.state_dict()
+        pretrained_dict =  {k: v for k, v in pretrained_dict.items() if k in model_dict}
+        model_dict.update(pretrained_dict)
+        estimator.load_state_dict(model_dict)
+
+        #estimator.load_state_dict(torch.load('{0}/{1}'.format(opt.outf, opt.resume_posenet)))
 
     if opt.resume_refinenet != '':
-        refiner.load_state_dict(torch.load('{0}/{1}'.format(opt.outf, opt.resume_refinenet)))
+        pretrained_dict = torch.load('{0}/{1}'.format(opt.outf, opt.resume_refinenet))
+        model_dict = refiner.state_dict()
+        pretrained_dict =  {k: v for k, v in pretrained_dict.items() if k in model_dict}
+        model_dict.update(pretrained_dict)
+        refiner.load_state_dict(model_dict)
+        #refiner.load_state_dict(torch.load('{0}/{1}'.format(opt.outf, opt.resume_refinenet)))
         opt.refine_start = True
         opt.decay_start = True
         opt.lr *= opt.lr_rate
@@ -116,7 +128,10 @@ def main():
         for log in os.listdir(opt.log_dir):
             os.remove(os.path.join(opt.log_dir, log))
     st_time = time.time()
-
+    #for name, param in estimator.named_parameters():
+    #    if name != 'feat.stn.conv4.weight' and  name != 'feat.stn.conv4.bias' and name != 'feat.stn.conv5.weight' and  name != 'feat.stn.conv5.bias':
+    #        param.requires_grad = False
+            #print(name)
     for epoch in range(opt.start_epoch, opt.nepoch):
         logger = setup_logger('epoch%d' % epoch, os.path.join(opt.log_dir, 'epoch_%d_log.txt' % epoch))
         logger.info('Train time {0}'.format(time.strftime("%Hh %Mm %Ss", time.gmtime(time.time() - st_time)) + ', ' + 'Training started'))

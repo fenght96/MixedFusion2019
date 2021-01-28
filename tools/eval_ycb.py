@@ -23,6 +23,9 @@ from torch.autograd import Variable
 from datasets.ycb.dataset import PoseDataset
 from lib.network import PoseNet, PoseRefineNet
 from lib.transformations import euler_matrix, quaternion_matrix, quaternion_from_matrix
+import time
+import pdb
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset_root', type=str, default = '', help='dataset root dir')
@@ -99,6 +102,8 @@ refiner.cuda()
 refiner.load_state_dict(torch.load(opt.refine_model))
 refiner.eval()
 
+
+
 testlist = []
 input_file = open('{0}/test_data_list.txt'.format(dataset_config_dir))
 while 1:
@@ -132,8 +137,9 @@ while 1:
     input_file.close()
     cld[class_id] = np.array(cld[class_id])
     class_id += 1
-
+time_s = time.time()
 for now in range(0, 2949):
+
     img = Image.open('{0}/{1}-color.png'.format(opt.dataset_root, testlist[now]))
     depth = np.array(Image.open('{0}/{1}-depth.png'.format(opt.dataset_root, testlist[now])))
     posecnn_meta = scio.loadmat('{0}/results_PoseCNN_RSS2018/{1}.mat'.format(ycb_toolbox_dir, '%06d' % now))
@@ -146,6 +152,7 @@ for now in range(0, 2949):
     
     for idx in range(len(lst)):
         itemid = lst[idx]
+
         try:
             rmin, rmax, cmin, cmax = get_bbox(posecnn_rois)
 
@@ -154,6 +161,10 @@ for now in range(0, 2949):
             mask = mask_label * mask_depth
 
             choose = mask[rmin:rmax, cmin:cmax].flatten().nonzero()[0]
+            if len(choose) == 0:
+                my_result_wo_refine.append([0.0 for i in range(7)])
+                my_result.append([0.0 for i in range(7)])
+                continue
             if len(choose) > num_points:
                 c_mask = np.zeros(len(choose), dtype=int)
                 c_mask[:num_points] = 1
@@ -161,6 +172,7 @@ for now in range(0, 2949):
                 choose = choose[c_mask.nonzero()]
             else:
                 choose = np.pad(choose, (0, num_points - len(choose)), 'wrap')
+
 
             depth_masked = depth[rmin:rmax, cmin:cmax].flatten()[choose][:, np.newaxis].astype(np.float32)
             xmap_masked = xmap[rmin:rmax, cmin:cmax].flatten()[choose][:, np.newaxis].astype(np.float32)
@@ -239,3 +251,5 @@ for now in range(0, 2949):
     scio.savemat('{0}/{1}.mat'.format(result_wo_refine_dir, '%04d' % now), {'poses':my_result_wo_refine})
     scio.savemat('{0}/{1}.mat'.format(result_refine_dir, '%04d' % now), {'poses':my_result})
     print("Finish No.{0} keyframe".format(now))
+time_all = time.time() - time_s
+print('all time:{0},avg_time:{1}'.format(time_all,float(time_all / 2949.0)))
