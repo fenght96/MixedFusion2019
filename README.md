@@ -1,27 +1,4 @@
-# DenseFusion
 
-<p align="center">
-	<img src ="assets/pullfig.png" width="1000" />
-</p>
-
-## Table of Content
-- [Overview](#overview)
-- [Requirements](#requirements)
-- [Code Structure](#code-structure)
-- [Datasets](#datasets)
-- [Training](#training)
-- [Evaluation](#evaluation)
-	- [Evaluation on YCB_Video Dataset](#evaluation-on-ycb_video-dataset)
-	- [Evaluation on LineMOD Dataset](#evaluation-on-linemod-dataset)
-- [Results](#results)
-- [Trained Checkpoints](#trained-checkpoints)
-- [Tips for your own dataset](#tips-for-your-own-dataset)
-- [Citations](#citations)
-- [License](#license)
-
-## Overview
-
-This repository is the implementation code of the paper "DenseFusion: 6D Object Pose Estimation by Iterative Dense Fusion"([arXiv](https://arxiv.org/abs/1901.04780), [Project](https://sites.google.com/view/densefusion), [Video](https://www.youtube.com/watch?v=SsE5-FuK5jo)) by Wang et al. at [Stanford Vision and Learning Lab](http://svl.stanford.edu/) and [Stanford People, AI & Robots Group](http://pair.stanford.edu/). The model takes an RGB-D image as input and predicts the 6D pose of the each object in the frame. This network is implemented using [PyTorch](https://pytorch.org/) and the rest of the framework is in Python. Since this project focuses on the 6D pose estimation process, we do not specifically limit the choice of the segmentation models. You can choose your preferred semantic-segmentation/instance-segmentation methods according to your needs. In this repo, we provide our full implementation code of the DenseFusion model, Iterative Refinement model and a vanilla SegNet semantic-segmentation model used in our real-robot grasping experiment. The ROS code of the real robot grasping experiment is not included.
 
 
 ## Requirements
@@ -174,23 +151,7 @@ The qualitative result on the YCB_Video dataset.
 	<img src ="assets/compare.png" width="600" />
 </p>
 
-## Trained Checkpoints
-You can download the trained DenseFusion and Iterative Refinement checkpoints of both datasets from [Link](https://drive.google.com/drive/folders/19ivHpaKm9dOrr12fzC8IDFczWRPFxho7).
 
-## Tips for your own dataset
-As you can see in this repo, the network code and the hyperparameters(lr and w) remain the same for both datasets. Which means you might not need to adjust too much on the network structure and hyperparameters when you use this repo on your own dataset. Please make sure that the distance metric in your dataset should be converted to meter, otherwise the hyperparameter w need to be adjusted. Several useful tools including [LabelFusion](https://github.com/RobotLocomotion/LabelFusion) and [sixd_toolkit](https://github.com/thodan/sixd_toolkit) has been tested to work well. (Please make sure to turn on the depth image collection in LabelFusion when you use it.)
-
-
-## Citations
-Please cite [DenseFusion](https://sites.google.com/view/densefusion) if you use this repository in your publications:
-```
-@article{wang2019densefusion,
-  title={DenseFusion: 6D Object Pose Estimation by Iterative Dense Fusion},
-  author={Wang, Chen and Xu, Danfei and Zhu, Yuke and Mart{\'\i}n-Mart{\'\i}n, Roberto and Lu, Cewu and Fei-Fei, Li and Savarese, Silvio},
-  booktitle={Computer Vision and Pattern Recognition (CVPR)},
-  year={2019}
-}
-```
 
 ## License
 Licensed under the [MIT License](LICENSE)
