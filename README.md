@@ -125,7 +125,9 @@ Just run:
 This script will test the models on the testing set of the LineMOD dataset with the masks outputted by the trained vanilla SegNet model. The result will be printed at the end of the execution and saved as a log in `experiments/eval_result/linemod/`.
 
 
+### weight
 
+[google cloud](https://drive.google.com/file/d/1R0CnaV51iC-ITHh8Jq0vDbdzkA_ul59y/view?usp=sharing)
 
 
 ## License
