@@ -125,31 +125,6 @@ Just run:
 This script will test the models on the testing set of the LineMOD dataset with the masks outputted by the trained vanilla SegNet model. The result will be printed at the end of the execution and saved as a log in `experiments/eval_result/linemod/`.
 
 
-## Results
-
-* YCB_Video Dataset:
-
-Quantitative evaluation result with ADD-S metric compared to other RGB-D methods. `Ours(per-pixel)` is the result of the DenseFusion model without refinement and `Ours(iterative)` is the result with iterative refinement.
-
-<p align="center">
-	<img src ="assets/result_ycb.png" width="600" />
-</p>
-
-**Important!** Before you use these numbers to compare with your methods, please make sure one important issus: One difficulty for testing on the YCB_Video Dataset is how to let the network to tell the difference between the object `051_large_clamp` and `052_extra_large_clamp`. The result of all the approaches in this table uses the same segmentation masks released by PoseCNN without any detection priors, so all of them suffer a performance drop on these two objects because of the poor detection result and this drop is also added to the final overall score. If you have added detection priors to your detector to distinguish these two objects, please clarify or do not copy the overall score for comparsion experiments.
-
-* LineMOD Dataset:
-
-Quantitative evaluation result with ADD metric for non-symmetry objects and ADD-S for symmetry objects(eggbox, glue) compared to other RGB-D methods. High performance RGB methods are also listed for reference.
-
-<p align="center">
-	<img src ="assets/result_linemod.png" width="500" />
-</p>
-
-The qualitative result on the YCB_Video dataset.
-
-<p align="center">
-	<img src ="assets/compare.png" width="600" />
-</p>
 
 
 
