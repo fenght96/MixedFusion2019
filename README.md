@@ -127,7 +127,7 @@ This script will test the models on the testing set of the LineMOD dataset with 
 
 ### weight
 
-[google cloud](https://drive.google.com/file/d/1R0CnaV51iC-ITHh8Jq0vDbdzkA_ul59y/view?usp=sharing)
+[baidu cloud](https://pan.baidu.com/s/1RZoaKkYH_freIzmvcu6zbQ) '''fht0'''
 
 
 ## Citations
