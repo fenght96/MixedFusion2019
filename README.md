@@ -130,5 +130,24 @@ This script will test the models on the testing set of the LineMOD dataset with 
 [google cloud](https://drive.google.com/file/d/1R0CnaV51iC-ITHh8Jq0vDbdzkA_ul59y/view?usp=sharing)
 
 
+## Citations
+Please cite [MixedFusion](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9412494) if you use this repository in your publications:
+```
+@INPROCEEDINGS{9412494,
+  author={Feng, Hangtao and Zhang, Lu and Yang, Xu and Liu, Zhiyong},
+  booktitle={2020 25th International Conference on Pattern Recognition (ICPR)}, 
+  title={MixedFusion: 6D Object Pose Estimation from Decoupled RGB-Depth Features}, 
+  year={2021},
+  volume={},
+  number={},
+  pages={685-691},
+  doi={10.1109/ICPR48806.2021.9412494}}
+}
+```
+
+
+
+
+
 ## License
 Licensed under the [MIT License](LICENSE)
