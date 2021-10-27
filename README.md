@@ -16,7 +16,7 @@
 
 ### weight
 
-[baidu cloud](https://pan.baidu.com/s/1RZoaKkYH_freIzmvcu6zbQ) '''fht0'''
+[baidu cloud](https://pan.baidu.com/s/1RZoaKkYH_freIzmvcu6zbQ) ```fht0```
 
 
 ## usage
